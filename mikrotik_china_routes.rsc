@@ -7,6 +7,7 @@
 /ipv6 firewall address-list remove [find list="China_Routes"];
 
 # IPv4 Routes (8688 entries)
+/ip firewall address-list add list=China_Routes address=10.10.10.0/25 comment="Local Network"
 /ip firewall address-list add list=China_Routes address=1.0.1.0/24 comment="CN IPv4";
 /ip firewall address-list add list=China_Routes address=1.0.2.0/23 comment="CN IPv4";
 /ip firewall address-list add list=China_Routes address=1.0.8.0/21 comment="CN IPv4";
@@ -10736,4 +10737,3 @@
 /ipv6 firewall address-list add list=China_Routes address=240f:4000::/24 comment="CN IPv6";
 /ipv6 firewall address-list add list=China_Routes address=240f:8000::/24 comment="CN IPv6";
 /ipv6 firewall address-list add list=China_Routes address=240f:c000::/24 comment="CN IPv6";
-/ip firewall address-list add list=China_Routes address=10.10.10.0/25 comment="Local Network"
