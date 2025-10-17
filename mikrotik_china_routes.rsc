@@ -10736,3 +10736,8 @@
 /ipv6 firewall address-list add list=China_Routes address=240f:4000::/24 comment="CN IPv6";
 /ipv6 firewall address-list add list=China_Routes address=240f:8000::/24 comment="CN IPv6";
 /ipv6 firewall address-list add list=China_Routes address=240f:c000::/24 comment="CN IPv6";
+/ip firewall address-list add list=China_Routes address=10.10.10.0/25 comment="Local Network"
+/ip firewall address-list add list=China_Routes address=speedtest.net comment="speedtest V4/V6" once
+/ip firewall address-list add list=China_Routes address=www.speedtest.net comment="www.speedtest V4/V6" once
+/ip firewall address-list add list=China_Routes address=ookla.net comment="ookla V4/V6" once
+/ip firewall address-list add list=China_Routes address=www.ookla.net comment="www.ookla V4/V6" once
