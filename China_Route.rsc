@@ -1,6 +1,6 @@
 /ip firewall address-list remove [find list=China_Routes]
 # Mikrotik China Route (CN) List
-# Last Updated: 2025-10-18 07:24:43
+# Last Updated: 2025-10-18 07:25:17
 /ip firewall address-list add list=China_Routes address=1.0.1.0/24
 /ip firewall address-list add list=China_Routes address=1.0.2.0/23
 /ip firewall address-list add list=China_Routes address=1.0.8.0/21
