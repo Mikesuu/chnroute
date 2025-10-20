@@ -8,6 +8,10 @@
 
 # IPv4 Routes (8688 entries)
 /ip firewall address-list add list=China_Routes address=10.10.10.0/25 comment="Local Network"
+/ip firewall address-list add list=China_Routes address=speedtest.net comment="Speedtest"
+/ip firewall address-list add list=China_Routes address=www.speedtest.net comment="Speedtest"
+/ip firewall address-list add list=China_Routes address=ookla.net comment="Speedtest"
+/ip firewall address-list add list=China_Routes address=www.ookla.net comment="Speedtest"
 /ip firewall address-list add list=China_Routes address=1.0.1.0/24 comment="CN IPv4";
 /ip firewall address-list add list=China_Routes address=1.0.2.0/23 comment="CN IPv4";
 /ip firewall address-list add list=China_Routes address=1.0.8.0/21 comment="CN IPv4";
