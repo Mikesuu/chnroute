@@ -1,39 +1,54 @@
 #!/usr/bin/env python3
-import requests
-from datetime import datetime
-import os
+import urllib.request
+import ipaddress
+import sys
 
-SRC_URL = "https://raw.githubusercontent.com/zhiyi7/gfw-pac/master/cidrs-cn.txt"
-OUTPUT_DIR = "mikrotik"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "cnip.rsc")
+# 数据源 URL（raw 链接）
+URL = "https://raw.githubusercontent.com/zhiyi7/gfw-pac/master/cidrs-cn.txt"
+OUTPUT_FILE = "mikrotik/cnip.rsc"
+LIST_NAME = "CN"
+
+def is_valid_cidr(cidr):
+    """检查是否为有效的 IPv4 或 IPv6 CIDR"""
+    try:
+        ipaddress.ip_network(cidr, strict=False)
+        return True
+    except ValueError:
+        return False
 
 def main():
-    print(f"[+] Downloading CN IP data from {SRC_URL} ...")
-    r = requests.get(SRC_URL, timeout=30)
-    r.raise_for_status()
-    lines = r.text.splitlines()
+    try:
+        print(f"Fetching CIDR list from: {URL}")
+        with urllib.request.urlopen(URL) as response:
+            lines = response.read().decode('utf-8').splitlines()
+    except Exception as e:
+        print(f"Error fetching data: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    # 过滤空行与注释
-    cn_ips = [line.strip() for line in lines if line.strip() and not line.startswith("#")]
+    valid_cidrs = []
+    for line in lines:
+        line = line.strip()
+        # 跳过空行和注释
+        if not line or line.startswith('#'):
+            continue
+        if is_valid_cidr(line):
+            valid_cidrs.append(line)
+        else:
+            print(f"Warning: invalid CIDR skipped: {line}", file=sys.stderr)
 
-    # 添加自定义网段
-    cn_ips.append("10.10.10.0/25")
+    if not valid_cidrs:
+        print("No valid CIDRs found!", file=sys.stderr)
+        sys.exit(1)
 
-    print(f"[+] Total {len(cn_ips)} CIDR blocks")
-
-    # 确保输出目录存在
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    # 生成 Mikrotik 导入脚本
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(f"# Mikrotik CN IP List\n")
-        f.write(f"# Source: {SRC_URL}\n")
-        f.write(f"# Updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC\n\n")
-        f.write("/ip firewall address-list\n")
-        for cidr in cn_ips:
-            f.write(f"add list=CN-IP address={cidr}\n")
-
-    print(f"[+] Saved to {OUTPUT_FILE}")
+    # 写入 MikroTik .rsc 文件
+    try:
+        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+            for cidr in sorted(valid_cidrs, key=lambda x: ipaddress.ip_network(x, strict=False)):
+                f.write(f"add address={cidr} list={LIST_NAME}\n")
+        print(f"✅ Successfully generated {len(valid_cidrs)} entries to {OUTPUT_FILE}")
+    except Exception as e:
+        print(f"Error writing file: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
