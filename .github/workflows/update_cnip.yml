@@ -12,16 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # 使用你的 token
+          token: ${{ secrets.MY_TOKEN }}  # 👈 使用你自定义的 MY_TOKEN
 
       - name: Download latest CNIP list
         run: |
           mkdir -p mikrotik
-          # 示例：从某个公开源下载（请替换为你的实际数据源）
           curl -sL https://ispip.clang.cn/all_cn.txt | \
             awk '{print "add address=" $0 " list=CN"}' > mikrotik/cnip.rsc
 
-      - name: Configure git
+      - name: Configure git user
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -29,10 +28,11 @@ jobs:
       - name: Commit and push if changed
         run: |
           git add mikrotik/cnip.rsc
-          # 只有文件变化才提交
           if ! git diff --quiet HEAD -- mikrotik/cnip.rsc; then
             git commit -m "Update CNIP list [$(date -u)]"
             git push origin main
           else
             echo "No changes, skip commit."
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}  # 👈 显式注入环境变量（确保 git push 能用）
