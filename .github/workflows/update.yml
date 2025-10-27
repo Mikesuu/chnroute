@@ -12,15 +12,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository (Strong Pull)
-        # 使用 actions/checkout@v4 来拉取代码
+      - name: Checkout repository (Clean Pull)
+        # 仅拉取最新一次提交，并禁用子模块，以避免结构混乱
         uses: actions/checkout@v4
         with:
-          # 确保拉取所有历史记录
-          fetch-depth: 0
-          # 强制拉取子模块和所有内容，解决找不到 scripts/ 的问题
-          submodules: true 
+          fetch-depth: 1 
+          submodules: false
           
+      - name: Reset Git to ensure clean directory
+        # 强制 Git 清理工作目录，确保 scripts/ 目录是可用的
+        run: |
+          git reset --hard
+          git clean -fxd
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -31,7 +35,7 @@ jobs:
 
       - name: Generate Mikrotik CNIP list
         run: |
-          # 再次检查 scripts 目录内容，用于最终确认
+          # 检查 scripts 目录内容，最终确认文件是否存在
           echo "Listing scripts/ directory content:"
           ls -l scripts/
           
