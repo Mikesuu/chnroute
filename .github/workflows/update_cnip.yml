@@ -1,9 +1,9 @@
-name: Update CNIP List
+name: Update CNIP List from gfw-pac
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 0 点执行
-  workflow_dispatch:      # 允许手动触发
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   update:
@@ -12,15 +12,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.MY_TOKEN }}  # 👈 使用你自定义的 MY_TOKEN
+          token: ${{ secrets.MY_TOKEN }}
 
-      - name: Download latest CNIP list
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Generate CNIP list (IPv4 + IPv6)
         run: |
-          mkdir -p mikrotik
-          curl -sL https://ispip.clang.cn/all_cn.txt | \
-            awk '{print "add address=" $0 " list=CN"}' > mikrotik/cnip.rsc
+          python generate_cnip.py
 
-      - name: Configure git user
+      - name: Configure git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -29,10 +32,10 @@ jobs:
         run: |
           git add mikrotik/cnip.rsc
           if ! git diff --quiet HEAD -- mikrotik/cnip.rsc; then
-            git commit -m "Update CNIP list [$(date -u)]"
+            git commit -m "Update CNIP list from gfw-pac [$(date -u)]"
             git push origin main
           else
             echo "No changes, skip commit."
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}  # 👈 显式注入环境变量（确保 git push 能用）
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
