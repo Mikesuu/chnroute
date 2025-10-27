@@ -1,13 +1,41 @@
-- name: Commit and push changes (via Git CLI)
+name: Update Mikrotik CNIP
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate Mikrotik CNIP list
         run: |
+          python3 scripts/generate_mikrotik_cnip.py
+
+      - name: Commit and push changes (Git CLI)
+        run: |
+          # 确保 output 目录存在并添加文件
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 复制生成的 output 文件到仓库根目录进行提交
-          # 假设 output 目录是在工作目录的根部生成的
-          cp -r output .
-          
-          # 暂存所有更改
+          # 确保 output/ 目录被追踪
           git add output/
           
           # 尝试提交，如果文件没有变化，则会打印 "No changes to commit"
