@@ -1,0 +1,40 @@
+name: Update CNIP List from gfw-pac
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 0 点运行
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.MY_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run Python script to generate CNIP list
+        run: python generate_cnip.py  # 👈 脚本在根目录，直接调用
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push if changed
+        run: |
+          git add mikrotik/cnip.rsc
+          if ! git diff --quiet HEAD -- mikrotik/cnip.rsc; then
+            git commit -m "Update CNIP list from gfw-pac [$(date -u)]"
+            git push origin main
+          else
+            echo "No changes, skip commit."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
