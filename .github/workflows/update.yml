@@ -1,0 +1,4 @@
+- name: Generate lists
+        run: |
+          python3 scripts/generate_rules.py
+          python3 scripts/generate_mikrotik_cnip.py
