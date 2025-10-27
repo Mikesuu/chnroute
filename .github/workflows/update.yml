@@ -1,0 +1,48 @@
+name: Update Mikrotik CNIP
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Generate Mikrotik CNIP list
+        run: |
+          # 检查 scripts 目录内容（调试用，确认文件是否存在）
+          ls -l scripts/
+          
+          # 运行脚本
+          python3 scripts/generate_mikrotik_cnip.py
+
+      - name: Commit and push changes (Git CLI)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 确保 output/ 目录被追踪
+          git add output/
+          
+          # 尝试提交，如果文件没有变化，则会打印 "No changes to commit"
+          git commit -m "Auto update Mikrotik CNIP list" || echo "No changes to commit"
+          
+          # 推送更改
+          git push
