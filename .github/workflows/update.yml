@@ -12,11 +12,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (Strong Pull)
+        # 使用 actions/checkout@v4 来拉取代码
         uses: actions/checkout@v4
         with:
+          # 确保拉取所有历史记录
           fetch-depth: 0
-
+          # 强制拉取子模块和所有内容，解决找不到 scripts/ 的问题
+          submodules: true 
+          
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -27,7 +31,8 @@ jobs:
 
       - name: Generate Mikrotik CNIP list
         run: |
-          # 检查 scripts 目录内容（调试用，确认文件是否存在）
+          # 再次检查 scripts 目录内容，用于最终确认
+          echo "Listing scripts/ directory content:"
           ls -l scripts/
           
           # 运行脚本
@@ -41,7 +46,7 @@ jobs:
           # 确保 output/ 目录被追踪
           git add output/
           
-          # 尝试提交，如果文件没有变化，则会打印 "No changes to commit"
+          # 尝试提交
           git commit -m "Auto update Mikrotik CNIP list" || echo "No changes to commit"
           
           # 推送更改
