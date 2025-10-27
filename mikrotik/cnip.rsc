@@ -1,3 +1,4 @@
+add address=10.10.10.0/25 list=CN
 add address=1.0.1.0/24 list=CN
 add address=1.0.2.0/23 list=CN
 add address=1.0.8.0/21 list=CN
