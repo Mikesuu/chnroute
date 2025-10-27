@@ -27,18 +27,20 @@ jobs:
 
       - name: Generate Mikrotik CNIP list
         run: |
+          # 检查 scripts 目录内容（用于调试）
+          ls -l scripts/
+          # 运行脚本
           python3 scripts/generate_mikrotik_cnip.py
 
       - name: Commit and push changes (Git CLI)
         run: |
-          # 确保 output 目录存在并添加文件
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 确保 output/ 目录被追踪
+          # 确保 output/ 目录被追踪（此目录下有 mikrotik_cn_ip.rsc）
           git add output/
           
-          # 尝试提交，如果文件没有变化，则会打印 "No changes to commit"
+          # 尝试提交，如果文件没有变化，|| 后面的命令会被执行
           git commit -m "Auto update Mikrotik CNIP list" || echo "No changes to commit"
           
           # 推送更改
