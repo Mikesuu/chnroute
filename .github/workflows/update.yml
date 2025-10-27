@@ -1,54 +1,38 @@
-name: Update Ad Rules
+name: Update Mikrotik CNIP
 
-# 触发条件：
 on:
-  # 1. 定时任务：UTC 每天 02:00 运行
   schedule:
     - cron: "0 2 * * *"
-  # 2. 手动触发：可在 Actions 页面手动点击运行
   workflow_dispatch:
 
-# 权限配置：允许 Action 写入仓库内容
 permissions:
   contents: write
 
 jobs:
   build:
-    # 使用最新的 Ubuntu 运行环境
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        # 检出代码到 Actions 运行环境
         uses: actions/checkout@v4
         with:
-          # 必须使用完整的历史记录来正确判断提交是否有变化
           fetch-depth: 0
 
       - name: Setup Python
-        # 设置 Python 环境
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Install dependencies
-        # 安装脚本所需的库
         run: pip install requests
 
-      - name: Generate lists
+      - name: Generate Mikrotik CNIP list
         run: |
-          python3 scripts/generate_rules.py
           python3 scripts/generate_mikrotik_cnip.py
 
       - name: Commit and push changes
-        # 提交并推送 changes
-        # 使用 actions/github-push-action 来处理文件拷贝、提交和推送
         uses: bdougie/git-push@main
         with:
-          # 提交者信息
           committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          # 提交信息
-          message: Auto update ad rules
-          # 只需要推送 output 目录下的文件
+          message: Auto update Mikrotik CNIP list
           files: output/
-          # 确保推送使用的是内置的 GITHUB_TOKEN
           token: ${{ secrets.GITHUB_TOKEN }}
