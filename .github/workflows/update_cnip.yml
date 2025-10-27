@@ -1,36 +1,38 @@
-name: Update Mikrotik CNIP
+name: Update CNIP List
 
 on:
   schedule:
-    - cron: "0 0 * * *" # 每天 UTC 0 点执行（北京时间早上 8 点）
-  workflow_dispatch:     # 允许手动触发
+    - cron: '0 0 * * *'  # 每天 UTC 0 点执行
+  workflow_dispatch:      # 允许手动触发
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}  # 使用你的 token
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: pip install requests
-
-      - name: Generate Mikrotik CNIP list
+      - name: Download latest CNIP list
         run: |
-          python scripts/gen_cnip.py
+          mkdir -p mikrotik
+          # 示例：从某个公开源下载（请替换为你的实际数据源）
+          curl -sL https://ispip.clang.cn/all_cn.txt | \
+            awk '{print "add address=" $0 " list=CN"}' > mikrotik/cnip.rsc
 
-      - name: Commit and push changes
+      - name: Configure git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push if changed
+        run: |
           git add mikrotik/cnip.rsc
-          git commit -m "update CNIP list [$(date '+%Y-%m-%d %H:%M:%S')]" || echo "No changes"
-          git push
+          # 只有文件变化才提交
+          if ! git diff --quiet HEAD -- mikrotik/cnip.rsc; then
+            git commit -m "Update CNIP list [$(date -u)]"
+            git push origin main
+          else
+            echo "No changes, skip commit."
+          fi
