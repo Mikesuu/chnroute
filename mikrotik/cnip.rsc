@@ -66,6 +66,7 @@
 /ip firewall address-list add address=5.154.156.50/31 list=CN
 /ip firewall address-list add address=5.154.156.54/31 list=CN
 /ip firewall address-list add address=8.128.0.0/10 list=CN
+/ip firewall address-list add address=10.10.10.0/25 list=CN
 /ip firewall address-list add address=13.104.184.80/28 list=CN
 /ip firewall address-list add address=14.0.0.0/21 list=CN
 /ip firewall address-list add address=14.0.12.0/22 list=CN
@@ -1234,6 +1235,10 @@
 /ip firewall address-list add address=93.183.14.0/24 list=CN
 /ip firewall address-list add address=93.183.18.0/24 list=CN
 /ip firewall address-list add address=94.191.0.0/17 list=CN
+/ip firewall address-list add address=96.45.82.93/32 list=CN
+/ip firewall address-list add address=96.45.82.209/32 list=CN
+/ip firewall address-list add address=96.45.83.41/32 list=CN
+/ip firewall address-list add address=96.45.83.144/32 list=CN
 /ip firewall address-list add address=101.0.0.0/22 list=CN
 /ip firewall address-list add address=101.1.0.0/22 list=CN
 /ip firewall address-list add address=101.2.172.0/22 list=CN
@@ -3242,6 +3247,8 @@
 /ip firewall address-list add address=103.255.200.0/22 list=CN
 /ip firewall address-list add address=103.255.212.0/22 list=CN
 /ip firewall address-list add address=103.255.228.0/22 list=CN
+/ip firewall address-list add address=104.17.147.22/32 list=CN
+/ip firewall address-list add address=104.17.148.22/32 list=CN
 /ip firewall address-list add address=104.28.9.46/31 list=CN
 /ip firewall address-list add address=104.28.9.48/32 list=CN
 /ip firewall address-list add address=104.28.37.44/31 list=CN
@@ -5085,6 +5092,10 @@
 /ip firewall address-list add address=150.242.248.0/22 list=CN
 /ip firewall address-list add address=150.248.0.0/16 list=CN
 /ip firewall address-list add address=150.255.0.0/16 list=CN
+/ip firewall address-list add address=151.101.2.219/32 list=CN
+/ip firewall address-list add address=151.101.66.219/32 list=CN
+/ip firewall address-list add address=151.101.130.219/32 list=CN
+/ip firewall address-list add address=151.101.194.219/32 list=CN
 /ip firewall address-list add address=152.104.128.0/17 list=CN
 /ip firewall address-list add address=152.136.0.0/16 list=CN
 /ip firewall address-list add address=153.0.0.0/16 list=CN
@@ -16796,6 +16807,10 @@
 /ipv6 firewall address-list add address=2a04:4e41:4082:f000::/52 list=CN
 /ipv6 firewall address-list add address=2a04:4e41:6003::/48 list=CN
 /ipv6 firewall address-list add address=2a04:4e41:6a03::/48 list=CN
+/ipv6 firewall address-list add address=2a04:4e42::731/128 list=CN
+/ipv6 firewall address-list add address=2a04:4e42:200::731/128 list=CN
+/ipv6 firewall address-list add address=2a04:4e42:400::731/128 list=CN
+/ipv6 firewall address-list add address=2a04:4e42:600::731/128 list=CN
 /ipv6 firewall address-list add address=2a04:f580:8010::/47 list=CN
 /ipv6 firewall address-list add address=2a04:f580:8090::/48 list=CN
 /ipv6 firewall address-list add address=2a04:f580:8210::/47 list=CN
