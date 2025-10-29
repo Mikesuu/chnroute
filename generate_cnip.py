@@ -4,12 +4,18 @@ import ipaddress
 import sys
 import os
 
+# 下载的源文件（可改为你自己的）
 URL = "https://raw.githubusercontent.com/zhiyi7/gfw-pac/master/cidrs-cn.txt"
+
+# 输出目录与文件
 OUTPUT_DIR = "mikrotik"
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "cnip.rsc")
+
+# Mikrotik 列表名
 LIST_NAME = "CN"
 
 def is_valid_cidr(cidr):
+    """检查 CIDR 格式是否正确"""
     try:
         ipaddress.ip_network(cidr, strict=False)
         return True
@@ -20,7 +26,7 @@ def main():
     # 创建输出目录
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    print(f"Fetching CIDR list from: {URL}")
+    print(f"🌐 Fetching CIDR list from: {URL}")
     try:
         with urllib.request.urlopen(URL) as response:
             lines = response.read().decode('utf-8').splitlines()
@@ -42,19 +48,23 @@ def main():
         print("❌ No valid CIDRs found!", file=sys.stderr)
         sys.exit(1)
 
-    # 排序：IPv4 在前，IPv6 在后，各自按网络地址排序
+    # 排序（IPv4 在前，IPv6 在后）
     def sort_key(cidr):
         net = ipaddress.ip_network(cidr, strict=False)
         return (int(net.version == 6), net)
 
     sorted_cidrs = sorted(valid_cidrs, key=sort_key)
 
-    # 写入文件
+    # 写入 Mikrotik 可导入的 .rsc 文件
     try:
         with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+            f.write("/ip firewall address-list\n")
             for cidr in sorted_cidrs:
-                f.write(f"add address={cidr} list={LIST_NAME}\n")
+                f.write(f"/ip firewall address-list add address={cidr} list={LIST_NAME}\n")
+
         print(f"✅ Successfully wrote {len(sorted_cidrs)} entries to {OUTPUT_FILE}")
+        print(f"📂 Output file: {OUTPUT_FILE}")
+
     except Exception as e:
         print(f"❌ Error writing file: {e}", file=sys.stderr)
         sys.exit(1)
