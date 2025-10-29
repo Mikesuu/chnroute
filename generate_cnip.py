@@ -3,6 +3,7 @@ import urllib.request
 import ipaddress
 import sys
 import os
+import socket
 
 # 下载的源文件
 URL = "https://raw.githubusercontent.com/zhiyi7/gfw-pac/master/cidrs-cn.txt"
@@ -14,6 +15,12 @@ OUTPUT_FILE = os.path.join(OUTPUT_DIR, "cnip.rsc")
 # Mikrotik 列表名
 LIST_NAME = "CN"
 
+# 内网网段
+LOCAL_NETS = ["10.10.10.0/25"]
+
+# 需要解析域名的列表
+DOMAINS = ["speedtest.net", "www.speedtest.net", "ookla.net", "www.ookla.net"]
+
 def is_valid_cidr(cidr):
     """检查 CIDR 格式是否正确"""
     try:
@@ -21,6 +28,23 @@ def is_valid_cidr(cidr):
         return True
     except Exception:
         return False
+
+def resolve_domains(domains):
+    """解析域名，返回 IPv4/IPv6 地址集合"""
+    ipv4s = set()
+    ipv6s = set()
+    for domain in domains:
+        try:
+            infos = socket.getaddrinfo(domain, None)
+            for info in infos:
+                addr = info[4][0]
+                if ":" in addr:
+                    ipv6s.add(addr + "/128")
+                else:
+                    ipv4s.add(addr + "/32")
+        except Exception as e:
+            print(f"⚠️  无法解析域名 {domain}: {e}", file=sys.stderr)
+    return ipv4s, ipv6s
 
 def main():
     # 创建输出目录
@@ -43,6 +67,14 @@ def main():
             valid_cidrs.append(line)
         else:
             print(f"⚠️  Skipped invalid CIDR: {line}", file=sys.stderr)
+
+    # 添加内网网段
+    valid_cidrs.extend(LOCAL_NETS)
+
+    # 解析域名
+    ipv4_domains, ipv6_domains = resolve_domains(DOMAINS)
+    valid_cidrs.extend(ipv4_domains)
+    valid_cidrs.extend(ipv6_domains)
 
     if not valid_cidrs:
         print("❌ No valid CIDRs found!", file=sys.stderr)
