@@ -4,7 +4,7 @@ import ipaddress
 import sys
 import os
 
-# 下载的源文件（可改为你自己的）
+# 下载的源文件
 URL = "https://raw.githubusercontent.com/zhiyi7/gfw-pac/master/cidrs-cn.txt"
 
 # 输出目录与文件
@@ -58,9 +58,18 @@ def main():
     # 写入 Mikrotik 可导入的 .rsc 文件
     try:
         with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+            # IPv4
             f.write("/ip firewall address-list\n")
             for cidr in sorted_cidrs:
-                f.write(f"/ip firewall address-list add address={cidr} list={LIST_NAME}\n")
+                net = ipaddress.ip_network(cidr, strict=False)
+                if net.version == 4:
+                    f.write(f"/ip firewall address-list add address={cidr} list={LIST_NAME}\n")
+            # IPv6
+            f.write("/ipv6 firewall address-list\n")
+            for cidr in sorted_cidrs:
+                net = ipaddress.ip_network(cidr, strict=False)
+                if net.version == 6:
+                    f.write(f"/ipv6 firewall address-list add address={cidr} list={LIST_NAME}\n")
 
         print(f"✅ Successfully wrote {len(sorted_cidrs)} entries to {OUTPUT_FILE}")
         print(f"📂 Output file: {OUTPUT_FILE}")
