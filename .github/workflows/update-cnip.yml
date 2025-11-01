@@ -9,32 +9,47 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      # 1️⃣ 拉取仓库
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          # 如果使用个人访问令牌，请确保权限包含 repo
           token: ${{ secrets.MY_TOKEN }}
 
+      # 2️⃣ 设置 Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      # 3️⃣ 运行 Python 脚本生成 mikrotik/cnip.rsc
       - name: Run Python script to generate CNIP list
-        run: python generate_cnip.py  # 👈 脚本在根目录，直接调用
+        run: python generate_cnip.py
 
+      # 4️⃣ 查看生成结果（调试用，可选）
+      - name: List mikrotik directory
+        run: ls -l mikrotik
+
+      - name: Show CNIP file (first 20 lines)
+        run: head -n 20 mikrotik/cnip.rsc
+
+      # 5️⃣ 配置 Git
       - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # 6️⃣ commit & push 更新
       - name: Commit and push if changed
         run: |
           git add mikrotik/cnip.rsc
-          if ! git diff --quiet HEAD -- mikrotik/cnip.rsc; then
+          # 检查 staging area 是否有变化
+          if git diff --cached --quiet; then
+            echo "No changes, skip commit."
+          else
             git commit -m "Update CNIP list from gfw-pac [$(date -u)]"
             git push origin main
-          else
-            echo "No changes, skip commit."
-          fi
         env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
