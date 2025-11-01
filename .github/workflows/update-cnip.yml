@@ -1,79 +1,48 @@
 name: Update CNIP List from gfw-pac
 
-
-
 on:
-
   schedule:
-
-    - cron: '0 0 * * *'  # 每天 UTC 0 点运行
-
-  workflow_dispatch:     # 允许手动触发
-
-
+    # 每天 UTC 0 点运行。UTC 00:00 对应北京时间（GMT+8）08:00。
+    - cron: '0 0 * * *'  
+  workflow_dispatch:      # 允许手动触发
 
 jobs:
-
   update:
-
+    # **重要**：设置权限，以便 GITHUB_TOKEN 具有写入权限来提交代码。
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
-
+    
     steps:
-
       - name: Checkout repository
-
         uses: actions/checkout@v4
-
         with:
-
-          token: ${{ secrets.MY_TOKEN }}
-
-
+          # 使用默认的 GITHUB_TOKEN。如果上面的 permissions: contents: write 足够，
+          # 这一步就不需要自定义 token 了。
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-
         uses: actions/setup-python@v5
-
         with:
-
           python-version: '3.10'
 
-
-
       - name: Run Python script to generate CNIP list
-
-        run: python generate_cnip.py  # 👈 脚本在根目录，直接调用
-
-
+        run: python generate_cnip.py
 
       - name: Configure Git
-
         run: |
-
+          # 机器人用户，用于自动提交
           git config --global user.name "github-actions[bot]"
-
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-
-
       - name: Commit and push if changed
-
         run: |
-
           git add mikrotik/cnip.rsc
-
+          # 检查是否有文件被更改
           if ! git diff --quiet HEAD -- mikrotik/cnip.rsc; then
-
+            echo "Changes detected, committing and pushing..."
             git commit -m "Update CNIP list from gfw-pac [$(date -u)]"
-
-            git push origin main
-
+            git push
           else
-
-            echo "No changes, skip commit."
-
+            echo "No changes in mikrotik/cnip.rsc, skipping commit."
           fi
-
-        env:
-
-          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
